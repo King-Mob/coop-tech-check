@@ -1,42 +1,65 @@
 import { useEffect, useState } from "react";
-import { loadQuestions, putQuestions } from "./requests";
+import { getQuestions, putQuestions } from "./requests";
 import { type question } from "./types";
-
-function Question({ question }: { question: question }) {
-    return (
-        <div>
-            <h2>{question.title}</h2>
-            <h3>{question.subtitle}</h3>
-            {question.type === "quantative" && question.options.map((option) => <div key={option}>{option}</div>)}
-            {question.type === "qualitative" && <input type="text"></input>}
-        </div>
-    );
-}
+import { QuestionAdmin } from "./Question";
 
 function Admin() {
     const [questions, setQuestions] = useState<question[]>([]);
 
-    async function getQuestions() {
-        const result = await loadQuestions();
+    async function loadQuestions() {
+        const result = await getQuestions();
         setQuestions(result);
     }
 
     useEffect(() => {
-        getQuestions();
+        loadQuestions();
     }, []);
 
     async function saveQuestions() {
         await putQuestions(questions);
-        await getQuestions();
+        await loadQuestions();
+    }
+
+    function addQuestion(question: question) {
+        setQuestions(questions.concat([question]));
+    }
+
+    function updateQuestion(question: question, index: number) {
+        setQuestions(
+            questions
+                .slice(0, index)
+                .concat([question])
+                .concat(questions.slice(index + 1))
+        );
+    }
+
+    function removeQuestion(index: number) {
+        setQuestions(questions.slice(0, index).concat(questions.slice(index + 1)));
     }
 
     return (
         <div>
             <h1>Admin Panel</h1>
-            {questions.map((question) => (
-                <Question question={question} key={question.title} />
+            <button>Download Answers</button>
+            <h2>Edit Questions</h2>
+            {questions.map((question, index) => (
+                <QuestionAdmin question={question} index={index} update={updateQuestion} remove={removeQuestion} />
             ))}
+            <button
+                onClick={() =>
+                    addQuestion({
+                        id: Date.now(),
+                        title: "",
+                        subtitle: "",
+                        options: [],
+                    })
+                }
+            >
+                New Question
+            </button>
+            <br />
             <button onClick={saveQuestions}>Save</button>
+            <br />
         </div>
     );
 }

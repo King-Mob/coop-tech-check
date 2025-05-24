@@ -1,29 +1,39 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import type { question } from "./types";
+import { getQuestions } from "./requests";
+import { QuestionUser } from "./Question";
 
 function App() {
-    const [count, setCount] = useState(0);
+    const [questions, setQuestions] = useState<question[]>([]);
+    const [deviceId, setDeviceId] = useState<string>();
+
+    async function loadQuestions() {
+        const result = await getQuestions();
+        setQuestions(result);
+    }
+
+    function loadDeviceId() {
+        const existingId = localStorage.getItem("coopTechCheckDeviceId");
+        if (existingId) {
+            setDeviceId(existingId);
+        } else {
+            const newId = uuidv4();
+            setDeviceId(newId);
+            localStorage.setItem("coopTechCheckDeviceId", newId);
+        }
+    }
+
+    useEffect(() => {
+        loadQuestions();
+        loadDeviceId();
+    }, []);
 
     return (
         <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo" />
-                </a>
-            </div>
-            <h1>Vite + React</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
+            <h1>Coop Tech Check</h1>
+            {deviceId && questions.map((question) => <QuestionUser question={question} deviceId={deviceId} />)}
         </>
     );
 }

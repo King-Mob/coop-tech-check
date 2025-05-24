@@ -1,19 +1,26 @@
-type quantative = {
-    type: "quantative";
+export type question = {
+    id: number;
     title: string;
     subtitle: string;
     options: string[];
 };
 
-type qualitative = {
-    type: "qualitative";
-    title: string;
-    subtitle: string;
+export type answer = {
+    questionId: number;
+    deviceId: string;
+    options: string[];
 };
 
-export type question = quantative | qualitative;
+export type answersByQuestion = {
+    [key: question["id"]]: answer[];
+};
 
 export type stateEvent = {
+    type: string;
+    [key: string]: any;
+};
+
+export type roomEvent = {
     type: string;
     [key: string]: any;
 };
