@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { question } from "./types";
 import { getQuestions } from "./requests";
 import { QuestionUser } from "./Question";
+import { Link } from "react-router";
 
 function App() {
     const [questions, setQuestions] = useState<question[]>([]);
@@ -34,6 +35,9 @@ function App() {
         <>
             <h1>Coop Tech Check</h1>
             {deviceId && questions.map((question) => <QuestionUser question={question} deviceId={deviceId} />)}
+            <Link to="/results">
+                <h2>See results</h2>
+            </Link>
         </>
     );
 }
