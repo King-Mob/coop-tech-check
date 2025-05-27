@@ -63,7 +63,8 @@ function Results() {
     }
 
     async function startSync() {
-        //const syncResult = await getSync();
+        const syncResult = await getSync();
+        console.log(syncResult);
     }
 
     useEffect(() => {
