@@ -14,7 +14,7 @@ export function QuestionAdmin({
     remove: (index: number) => void;
 }) {
     return (
-        <div>
+        <div className="question-admin-container">
             <input
                 value={question.title}
                 onChange={(e) => update({ ...question, title: e.target.value }, index)}
@@ -59,14 +59,15 @@ export function QuestionAdmin({
                                 )
                             }
                         >
-                            Remove
+                            Remove Option
                         </button>
                     </div>
                 ))}
             <button onClick={() => update({ ...question, options: question.options?.concat([""]) }, index)}>
                 New Option
             </button>
-            <button onClick={() => remove(index)}>Remove</button>
+            <br />
+            <button onClick={() => remove(index)}>Remove Question</button>
         </div>
     );
 }

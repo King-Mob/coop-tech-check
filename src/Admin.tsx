@@ -37,10 +37,14 @@ function Admin() {
         setQuestions(questions.slice(0, index).concat(questions.slice(index + 1)));
     }
 
+    function downloadAnswers() {
+        console.log("this would download a csv");
+    }
+
     return (
         <div>
             <h1>Admin Panel</h1>
-            <button>Download Answers</button>
+            <button onClick={downloadAnswers}>Download Answers</button>
             <h2>Edit Questions</h2>
             {questions.map((question, index) => (
                 <QuestionAdmin question={question} index={index} update={updateQuestion} remove={removeQuestion} />
