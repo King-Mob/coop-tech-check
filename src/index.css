@@ -75,6 +75,19 @@ button:focus-visible {
     border: 1px solid black;
     border-radius: 20px;
     margin: 5px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.link-emoji {
+    font-size: 75px;
+    margin: 0px;
+}
+
+.link-count {
+    font-size: 30px;
+    margin: 0px;
 }
 
 #reaction-links-container {

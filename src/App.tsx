@@ -43,8 +43,8 @@ function ReactionLink({ emoji, count }: { emoji: string; count: number }) {
     return (
         <Link to={`/reactions/${emoji}`}>
             <div className="reaction-link">
-                <h2>{emoji}</h2>
-                <p>{count}</p>
+                <h2 className="link-emoji">{emoji}</h2>
+                <p className="link-count">{count}</p>
             </div>
         </Link>
     );
@@ -94,11 +94,6 @@ function App() {
     return (
         <>
             <h1>Coop Tech Check</h1>
-            <p>
-                TODO: the emojis will get bigger or smaller based on the number of reactions and arranged to fit
-                together. They will update live as they're posted without refresh needed. People will be able to post
-                any emoji not just the default ones
-            </p>
             <div id="reaction-links-container">
                 {reactions.map((reaction) => (
                     <ReactionLink emoji={reaction.emoji} count={reaction.count} />
@@ -115,6 +110,11 @@ function App() {
             ) : (
                 <button onClick={() => setNewVisible(true)}>+</button>
             )}
+            <p>
+                TODO: the emojis will get bigger or smaller based on the number of reactions and arranged to fit
+                together. They will update live as they're posted without refresh needed. People will be able to post
+                any emoji not just the default ones
+            </p>
         </>
     );
 }
