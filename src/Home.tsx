@@ -50,7 +50,7 @@ function ReactionLink({ emoji, count }: { emoji: string; count: number }) {
     );
 }
 
-function App() {
+function Home() {
     const [reactions, setReactions] = useState<reactionSummary[]>([]);
     const [deviceId, setDeviceId] = useState<string>();
     const [newVisible, setNewVisible] = useState(false);
@@ -119,4 +119,4 @@ function App() {
     );
 }
 
-export default App;
+export default Home;
