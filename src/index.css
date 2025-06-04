@@ -92,3 +92,7 @@ button:focus-visible {
     display: grid;
     grid-template-columns: auto auto;
 }
+
+.plus-button {
+    font-size: 25px;
+}

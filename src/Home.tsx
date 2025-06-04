@@ -1,8 +1,7 @@
 import "./App.css";
-import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
 import type { reaction, reactionSummary } from "./types";
-import { getReactions, postReaction } from "./requests";
+import { postReaction } from "./requests";
 import { Link } from "react-router";
 
 const possibleEmojis = ["❤️", "💡", "👍", "😮"];
@@ -50,52 +49,37 @@ function ReactionLink({ emoji, count }: { emoji: string; count: number }) {
     );
 }
 
-function Home() {
-    const [reactions, setReactions] = useState<reactionSummary[]>([]);
-    const [deviceId, setDeviceId] = useState<string>();
+function Home({
+    reactions,
+    deviceId,
+    loadReactions,
+}: {
+    reactions: reaction[];
+    deviceId: string;
+    loadReactions: () => void;
+}) {
     const [newVisible, setNewVisible] = useState(false);
 
-    async function loadReactions() {
-        const reactionList = await getReactions();
+    const reactionSummaries: reactionSummary[] = [];
 
-        const result: reactionSummary[] = [];
-        reactionList.forEach((reaction: reaction) => {
-            const emojiIndex = result.findIndex((summary) => summary.emoji === reaction.emoji);
-            if (emojiIndex >= 0) {
-                result[emojiIndex].count++;
-            } else {
-                result.push({
-                    emoji: reaction.emoji,
-                    count: 1,
-                });
-            }
-        });
-        result.sort((a, b) => b.count - a.count);
-
-        setReactions(result);
-    }
-
-    function loadDeviceId() {
-        const existingId = localStorage.getItem("coopTechCheckDeviceId");
-        if (existingId) {
-            setDeviceId(existingId);
+    reactions.forEach((reaction: reaction) => {
+        const emojiIndex = reactionSummaries.findIndex((summary) => summary.emoji === reaction.emoji);
+        if (emojiIndex >= 0) {
+            reactionSummaries[emojiIndex].count++;
         } else {
-            const newId = uuidv4();
-            setDeviceId(newId);
-            localStorage.setItem("coopTechCheckDeviceId", newId);
+            reactionSummaries.push({
+                emoji: reaction.emoji,
+                count: 1,
+            });
         }
-    }
-
-    useEffect(() => {
-        loadReactions();
-        loadDeviceId();
-    }, []);
+    });
+    reactionSummaries.sort((a, b) => b.count - a.count);
 
     return (
         <>
             <h1>Coop Tech Check</h1>
             <div id="reaction-links-container">
-                {reactions.map((reaction) => (
+                {reactionSummaries.map((reaction) => (
                     <ReactionLink emoji={reaction.emoji} count={reaction.count} />
                 ))}
             </div>
@@ -108,7 +92,9 @@ function Home() {
                     }}
                 />
             ) : (
-                <button onClick={() => setNewVisible(true)}>+</button>
+                <button className="plus-button" onClick={() => setNewVisible(true)}>
+                    +
+                </button>
             )}
             <p>
                 TODO: the emojis will get bigger or smaller based on the number of reactions and arranged to fit

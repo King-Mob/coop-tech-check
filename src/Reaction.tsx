@@ -1,36 +1,22 @@
-import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
 import { Link } from "react-router";
 import { type reaction } from "./types";
 import { useParams } from "react-router";
-import { getReactions, postReaction } from "./requests";
+import { postReaction } from "./requests";
 
-function Reaction({}) {
+function Reaction({
+    reactions,
+    deviceId,
+    loadReactions,
+}: {
+    reactions: reaction[];
+    deviceId: string;
+    loadReactions: () => void;
+}) {
     const { reaction } = useParams();
-    const [reactions, setReactions] = useState<reaction[]>([]);
     const [newNote, setNewNote] = useState("");
-    const [deviceId, setDeviceId] = useState("");
 
-    async function loadReactions() {
-        const reactionList: reaction[] = await getReactions();
-        setReactions(reactionList.filter((item) => item.emoji === reaction).reverse());
-    }
-
-    function loadDeviceId() {
-        const existingId = localStorage.getItem("coopTechCheckDeviceId");
-        if (existingId) {
-            setDeviceId(existingId);
-        } else {
-            const newId = uuidv4();
-            setDeviceId(newId);
-            localStorage.setItem("coopTechCheckDeviceId", newId);
-        }
-    }
-
-    useEffect(() => {
-        loadReactions();
-        loadDeviceId();
-    }, []);
+    const reactionList = reactions.filter((item) => item.emoji === reaction).reverse();
 
     async function addReaction() {
         if (reaction && newNote !== "") {
@@ -48,9 +34,9 @@ function Reaction({}) {
         <div>
             <Link to="/">back</Link>
             <h1>
-                {reaction} {reactions.length}
+                {reaction} {reactionList.length}
             </h1>
-            {reactions
+            {reactionList
                 .filter((reaction) => reaction.note !== "")
                 .map((reaction) => (
                     <p>{reaction.note}</p>
