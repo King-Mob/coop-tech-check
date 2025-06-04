@@ -72,8 +72,6 @@ button:focus-visible {
 }
 
 .reaction-link {
-    border: 1px solid black;
-    border-radius: 20px;
     margin: 5px;
     display: flex;
     align-items: flex-start;
