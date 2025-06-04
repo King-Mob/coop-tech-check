@@ -67,7 +67,17 @@ button:focus-visible {
     }
 }
 
-.question-admin-container {
-    border-bottom: solid 1px black;
-    margin-bottom: 5px;
+.emoji-selected {
+    background-color: #535bf2;
+}
+
+.reaction-link {
+    border: 1px solid black;
+    border-radius: 20px;
+    margin: 5px;
+}
+
+#reaction-links-container {
+    display: grid;
+    grid-template-columns: auto auto;
 }
