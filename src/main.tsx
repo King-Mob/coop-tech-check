@@ -2,19 +2,53 @@ import { StrictMode, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { v4 as uuidv4 } from "uuid";
-import { type reaction } from "./types.ts";
-import { getReactions } from "./requests.ts";
+import { type message, type roomEvent } from "./types.ts";
+import { getEvents } from "./requests.ts";
 import "./index.css";
 import Home from "./Home.tsx";
-import Reaction from "./Reaction.tsx";
+import Admin from "./Admin.tsx";
 
 function App() {
-    const [reactions, setReactions] = useState<reaction[]>([]);
+    const [messages, setMessages] = useState<message[]>([]);
     const [deviceId, setDeviceId] = useState("");
 
-    async function loadReactions() {
-        const reactions = await getReactions();
-        setReactions(reactions);
+    async function loadMessages() {
+        const events = await getEvents();
+        console.log(events.chunk);
+
+        const messages: message[] = [];
+        events.chunk.forEach((event: roomEvent) => {
+            if (event.type === "m.room.message" && event.content.body) {
+                if (event.content["m.new_content"]) {
+                    const oldMessage = messages.find(
+                        (message) => message.event_id === event.content["m.relates_to"].event_id
+                    );
+                    if (oldMessage) oldMessage.text = event.content["m.new_content"].body;
+                } else {
+                    messages.push({
+                        text: event.content.body,
+                        reactions: [],
+                        event_id: event.event_id,
+                    });
+                }
+            }
+            if (event.type === "m.reaction" && event.content["m.relates_to"]) {
+                const oldMessage = messages.find(
+                    (message) => message.event_id === event.content["m.relates_to"].event_id
+                );
+                if (oldMessage) {
+                    oldMessage.reactions.push({
+                        emoji: event.content["m.relates_to"].key,
+                        deviceId: event.content.deviceId,
+                        event_id: event.content["m.relates_to"].event_id,
+                    });
+                }
+            }
+            if (event.type === "m.room.redaction") {
+            }
+        });
+
+        setMessages(messages);
     }
 
     function loadDeviceId() {
@@ -29,7 +63,7 @@ function App() {
     }
 
     useEffect(() => {
-        loadReactions();
+        loadMessages();
         loadDeviceId();
     }, []);
 
@@ -38,12 +72,9 @@ function App() {
             <Routes>
                 <Route
                     path="/"
-                    element={<Home reactions={reactions} deviceId={deviceId} loadReactions={loadReactions} />}
+                    element={<Home messages={messages} deviceId={deviceId} loadMessages={loadMessages} />}
                 />
-                <Route
-                    path="/reactions/:reaction"
-                    element={<Reaction reactions={reactions} deviceId={deviceId} loadReactions={loadReactions} />}
-                />
+                <Route path="/admin" element={<Admin />} />
             </Routes>
         </BrowserRouter>
     );

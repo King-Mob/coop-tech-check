@@ -4,6 +4,8 @@ import { type reaction } from "./types";
 import { useParams } from "react-router";
 import { postReaction } from "./requests";
 
+
+
 function Reaction({
     reactions,
     deviceId,

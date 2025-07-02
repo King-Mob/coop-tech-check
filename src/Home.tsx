@@ -1,107 +1,108 @@
 import "./App.css";
 import { useState } from "react";
-import type { reaction, reactionSummary } from "./types";
-import { postReaction } from "./requests";
-import { Link } from "react-router";
+import type { message, reaction } from "./types";
+import { postMessage, putMessage, redactEvent } from "./requests";
 
-const possibleEmojis = ["❤️", "💡", "👍", "😮"];
+const possibleEmojis = ["❤️", "💡", "👍", "😀"];
+const moreEmojis = ["🚀", "🔥", "🐙", "🤠"];
 
-function NewReaction({ deviceId, close }: { deviceId: string; close: () => void }) {
-    const [emoji, setEmoji] = useState("❤️");
-    const [note, setNote] = useState("");
+function Reaction({ reactions }: { reactions: reaction[] }) {
+    const [moreVisible, setMoreVisible] = useState(false);
 
-    async function addReaction() {
-        await postReaction({
-            emoji,
-            note,
-            deviceId,
-        });
-        close();
-    }
+    function createReaction() {}
+
+    function removeReaction() {}
 
     return (
-        <div>
-            {possibleEmojis.map((possible) => (
-                <button className={possible === emoji ? "emoji-selected" : ""} onClick={() => setEmoji(possible)}>
-                    {[possible]}
-                </button>
-            ))}
-            <input
-                type="text"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="optional note"
-            ></input>
-            <button onClick={addReaction}>add</button>
-            <button onClick={close}>close</button>
+        <div className="reactions-container">
+            {possibleEmojis.map((emoji) => {
+                const emojiCount = reactions.filter((reaction) => reaction.emoji === emoji).length;
+                return (
+                    <>
+                        <button>{emoji}</button>
+                        <span className="reaction-count">{emojiCount > 0 ? emojiCount : ""}</span>
+                    </>
+                );
+            })}
+            {moreVisible ? (
+                <div className="more-container">
+                    <button onClick={() => setMoreVisible(false)}>x</button>
+                    {moreEmojis.map((emoji) => (
+                        <button>{emoji}</button>
+                    ))}
+                </div>
+            ) : (
+                <button onClick={() => setMoreVisible(true)}>+</button>
+            )}
         </div>
     );
 }
 
-function ReactionLink({ emoji, count }: { emoji: string; count: number }) {
+function Message({ message, admin, loadMessages }: { message: message; admin: boolean; loadMessages: () => void }) {
+    const [messageText, setMessageText] = useState(message.text);
+
+    async function updateMessage() {
+        await putMessage(messageText, message.event_id);
+        loadMessages();
+    }
+
+    async function removeMessage() {
+        await redactEvent(message.event_id, "deleted by admin");
+        loadMessages();
+    }
+
     return (
-        <Link to={`/reactions/${emoji}`}>
-            <div className="reaction-link">
-                <h2 className="link-emoji">{emoji}</h2>
-                <p className="link-count">{count}</p>
-            </div>
-        </Link>
+        <div>
+            {admin ? (
+                <>
+                    <input type="text" value={messageText} onChange={(e) => setMessageText(e.target.value)}></input>
+                    <button onClick={updateMessage}>Save</button>
+                    <button onClick={removeMessage}>Delete</button>
+                </>
+            ) : (
+                <p>{message.text}</p>
+            )}
+            <Reaction reactions={message.reactions} />
+        </div>
     );
 }
 
 function Home({
-    reactions,
+    messages,
     deviceId,
-    loadReactions,
+    loadMessages,
 }: {
-    reactions: reaction[];
+    messages: message[];
     deviceId: string;
-    loadReactions: () => void;
+    loadMessages: () => void;
 }) {
-    const [newVisible, setNewVisible] = useState(false);
+    const [newPrompt, setNewPrompt] = useState("");
+    const admin = localStorage.getItem("coop.tech.check.admin") === "true";
 
-    const reactionSummaries: reactionSummary[] = [];
-
-    reactions.forEach((reaction: reaction) => {
-        const emojiIndex = reactionSummaries.findIndex((summary) => summary.emoji === reaction.emoji);
-        if (emojiIndex >= 0) {
-            reactionSummaries[emojiIndex].count++;
-        } else {
-            reactionSummaries.push({
-                emoji: reaction.emoji,
-                count: 1,
-            });
-        }
-    });
-    reactionSummaries.sort((a, b) => b.count - a.count);
+    async function createPrompt() {
+        await postMessage(newPrompt);
+        setNewPrompt("");
+        loadMessages();
+    }
 
     return (
-        <>
+        <div>
             <h1>Coop Tech Check</h1>
-            <div id="reaction-links-container">
-                {reactionSummaries.map((reaction) => (
-                    <ReactionLink emoji={reaction.emoji} count={reaction.count} />
-                ))}
-            </div>
-            {deviceId && newVisible ? (
-                <NewReaction
-                    deviceId={deviceId}
-                    close={() => {
-                        setNewVisible(false);
-                        loadReactions();
-                    }}
-                />
-            ) : (
-                <button className="plus-button" onClick={() => setNewVisible(true)}>
-                    +
-                </button>
+            {messages.map((message) => (
+                <Message message={message} admin={admin} loadMessages={loadMessages} />
+            ))}
+            {admin && (
+                <>
+                    <input
+                        type="text"
+                        value={newPrompt}
+                        onChange={(e) => setNewPrompt(e.target.value)}
+                        placeholder="New prompt"
+                    ></input>
+                    <button onClick={createPrompt}>Add new prompt</button>
+                </>
             )}
-            <p>
-                TODO: the emojis will get bigger or smaller based on the number of reactions and arranged to fit
-                together. They will update live as they're posted without refresh needed. People will be able to post
-                any emoji not just the default ones
-            </p>
-        </>
+        </div>
     );
 }
 

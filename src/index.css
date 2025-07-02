@@ -71,6 +71,21 @@ button:focus-visible {
     background-color: #535bf2;
 }
 
+.reactions-container {
+    border: 1px black solid;
+    border-radius: 10px;
+    width: fit-content;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+.reaction-count {
+    font-size: small;
+    align-self: flex-start;
+}
+
 .reaction-link {
     margin: 5px;
     display: flex;

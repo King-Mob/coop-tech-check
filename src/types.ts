@@ -1,7 +1,7 @@
 export type reaction = {
     emoji: string;
-    note: string;
     deviceId: string;
+    event_id: string;
 };
 
 export type reactionSummary = {
@@ -12,4 +12,10 @@ export type reactionSummary = {
 export type roomEvent = {
     type: string;
     [key: string]: any;
+};
+
+export type message = {
+    text: string;
+    reactions: reaction[];
+    event_id: string;
 };
