@@ -9,9 +9,11 @@ const moreEmojis = ["🚀", "🔥", "🐙", "🤠"];
 function Reaction({ reactions }: { reactions: reaction[] }) {
     const [moreVisible, setMoreVisible] = useState(false);
 
+    /*
     function createReaction() {}
 
     function removeReaction() {}
+    */
 
     return (
         <div className="reactions-container">
@@ -69,7 +71,7 @@ function Message({ message, admin, loadMessages }: { message: message; admin: bo
 
 function Home({
     messages,
-    deviceId,
+    // deviceId,
     loadMessages,
 }: {
     messages: message[];

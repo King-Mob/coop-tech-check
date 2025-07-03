@@ -1,4 +1,4 @@
-import { useState } from "react";
+/*import { useState } from "react";
 import { Link } from "react-router";
 import { type reaction } from "./types";
 import { useParams } from "react-router";
@@ -57,3 +57,5 @@ function Reaction({
 }
 
 export default Reaction;
+
+*/
